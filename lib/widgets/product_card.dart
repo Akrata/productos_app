@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:productos_app/models/models.dart';
+import 'package:productos_app/services/products_service.dart';
+import 'package:provider/provider.dart';
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({Key? key}) : super(key: key);
+  const ProductCard({Key? key, required this.product}) : super(key: key);
+  final Product product;
 
   @override
   Widget build(BuildContext context) {
@@ -14,19 +18,19 @@ class ProductCard extends StatelessWidget {
         decoration: _cardBorders(),
         child: Stack(
           alignment: Alignment.bottomLeft,
-          children: const [
-            _BackgroundImage(),
-            _ProductDetails(),
+          children: [
+            _BackgroundImage(imagen: product.picture),
+            _ProductDetails(productId: product.id, productName: product.name),
             Positioned(
               top: 0,
               right: 0,
-              child: _PriceTag(),
+              child: _PriceTag(price: product.price),
             ),
             //TODO: Mostrar de manera condicional
             Positioned(
               top: 0,
               left: 0,
-              child: _NotAvilable(),
+              child: _NotAvilable(is_available: product.available),
             ),
           ],
         ),
@@ -47,8 +51,10 @@ class ProductCard extends StatelessWidget {
 }
 
 class _BackgroundImage extends StatelessWidget {
+  final imagen;
   const _BackgroundImage({
     Key? key,
+    this.imagen,
   }) : super(key: key);
 
   @override
@@ -60,7 +66,7 @@ class _BackgroundImage extends StatelessWidget {
         height: 400,
         child: FadeInImage(
           placeholder: AssetImage('assets/jar-loading.gif'),
-          image: NetworkImage('https://via.placeholder.com/400x300/f6f6f6'),
+          image: NetworkImage(imagen),
           fit: BoxFit.cover,
         ),
       ),
@@ -69,8 +75,12 @@ class _BackgroundImage extends StatelessWidget {
 }
 
 class _ProductDetails extends StatelessWidget {
+  final productName;
+  final productId;
   const _ProductDetails({
     Key? key,
+    this.productName,
+    this.productId,
   }) : super(key: key);
 
   @override
@@ -84,9 +94,9 @@ class _ProductDetails extends StatelessWidget {
         decoration: _buildBoxDecorection(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
-              'Disco Duro G',
+              '$productName',
               style: TextStyle(
                 fontSize: 20,
                 color: Colors.white,
@@ -96,7 +106,7 @@ class _ProductDetails extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              'Id del disco duro',
+              '$productId',
               style: TextStyle(
                 fontSize: 15,
                 color: Colors.white,
@@ -118,8 +128,10 @@ class _ProductDetails extends StatelessWidget {
 }
 
 class _PriceTag extends StatelessWidget {
+  final price;
   const _PriceTag({
     Key? key,
+    this.price,
   }) : super(key: key);
 
   @override
@@ -135,12 +147,12 @@ class _PriceTag extends StatelessWidget {
           bottomLeft: Radius.circular(25),
         ),
       ),
-      child: const FittedBox(
+      child: FittedBox(
         fit: BoxFit.contain,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 10),
           child: Text(
-            '\$103.99',
+            '$price',
             style: TextStyle(color: Colors.white, fontSize: 20),
           ),
         ),
@@ -150,32 +162,35 @@ class _PriceTag extends StatelessWidget {
 }
 
 class _NotAvilable extends StatelessWidget {
+  final bool is_available;
   const _NotAvilable({
     Key? key,
+    required this.is_available,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.red[300],
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          bottomRight: Radius.circular(25),
-        ),
-      ),
-      child: const FittedBox(
-        fit: BoxFit.contain,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Text(
-            'No Disponible',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ),
-    );
+    return is_available == false
+        ? Container(
+            width: 100,
+            height: 70,
+            decoration: BoxDecoration(
+              color: Colors.red[300],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(25),
+                bottomRight: Radius.circular(25),
+              ),
+            ),
+            child: FittedBox(
+              fit: BoxFit.contain,
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    'No Disponible',
+                    style: TextStyle(color: Colors.white),
+                  )),
+            ),
+          )
+        : Container();
   }
 }
